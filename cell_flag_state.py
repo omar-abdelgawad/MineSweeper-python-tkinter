@@ -2,6 +2,10 @@ from enum import Enum, auto
 
 
 class CellFlagState(Enum):
-    pressed = auto()
+    revealed = auto()
     flagged = auto()
-    not_flagged_nor_pressed = auto()
+    hidden = auto()
+
+
+class Cell:
+    pass
