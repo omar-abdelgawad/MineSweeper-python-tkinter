@@ -3,17 +3,21 @@ import random
 from PIL import ImageTk, Image
 from cell import Cell, CellFlagState
 
+# TODO: document readme well
 # TODO: add clock functionality
-# TODO: change cell to a seperate object
+# TODO: add restart button
 # TODO: add press on cell that has same number of flags around it to clear all other cells feature.
-
+# TODO: add choosing the number of rows and columns at start of game
+# TODO: change the design to make it a bit more like original mines
+# TODO: make an AI that can play the game
+# TODO: change dims of the cell to change according to size of rows and cols
+# TODO: add some padding to the grid to make it make it cleaner
 
 MINES_PERCENTAGE = 0.25
 BOMB_IMAGE_FILE_PATH = r"images/mine.png"
 FLAG_IMAGE_FILE_PATH = r"images/flag.jpg"
-CELL_SIZE = (80, 80)
-FLAG_IMAGE = Image.open(FLAG_IMAGE_FILE_PATH).resize(CELL_SIZE)
-BOMB_IMAGE = Image.open(BOMB_IMAGE_FILE_PATH).resize(CELL_SIZE, Image.ANTIALIAS)
+FLAG_IMAGE = Image.open(FLAG_IMAGE_FILE_PATH).resize(Cell.CELL_SIZE)
+BOMB_IMAGE = Image.open(BOMB_IMAGE_FILE_PATH).resize(Cell.CELL_SIZE)
 
 
 class MineSweeper:
@@ -25,7 +29,6 @@ class MineSweeper:
         self.window = tk.Tk()
         self.window.title("Mine Sweeper")
         self.window.resizable(False, False)  ###maybe change in future to resizable
-        # self.window.geometry(f"{WIDTH}x{HEIGHT}")
 
         # images
         self.flag_photo = ImageTk.PhotoImage(FLAG_IMAGE)
@@ -42,42 +45,19 @@ class MineSweeper:
         )
         self.flag_label.grid(row=0, column=self.mine_cols, **self.padding)
 
-        # grid/cell # TODO: remove below and make cell class
-        self.mine_positions: list[list[int]] = [[]]
-        self.grid: list[list[tk.Button]] = self.draw_grid()
-        self.grid_flag_state: list[list[CellFlagState]] = [
-            [CellFlagState.hidden for j in range(self.mine_cols)]
-            for i in range(self.mine_rows)
-        ]
-
-    def draw_grid(self) -> list[list[tk.Button]]:
-        """initializes all buttons and places them as a grid"""
-        grid = [
-            [
-                tk.Button(
-                    self.window,
-                    # image=tk.PhotoImage(),
-                    width=6,
-                    height=4,
-                    relief=tk.RAISED,
-                    command=lambda row=i, col=j: self.pressed(row, col),
-                )
-                for j in range(self.mine_cols)
-            ]
-            for i in range(self.mine_rows)
+        # initializing grid if Cells
+        self.grid = [
+            [Cell(i, j) for j in range(self.mine_cols)] for i in range(self.mine_rows)
         ]
         for i in range(self.mine_rows):
-            for j in range(self.mine_rows):
-                grid[i][j].grid(row=i, column=j, **self.padding)
-                grid[i][j].bind(
-                    "<Button-3>",
-                    lambda event, row=i, col=j: self.button_right_click(
-                        row=row, col=col
-                    ),
+            for j in range(self.mine_cols):
+                self.grid[i][j].embed_button_actions(
+                    self.window,
+                    lambda row=i, col=j: self.left_clicked(row, col),
+                    lambda event, row=i, col=j: self.right_clicked(row, col),
                 )
-        return grid
 
-    def get_mine_positions(self, first_time: (tuple[int, int])) -> list[list[int]]:
+    def find_mine_positions(self, first_time: (tuple[int, int])) -> None:
         """determines all mine positions for the grid excluding the first_clicked_position
         Args:
             first_time (tuple[int, int]): row and col index of the first pressed cell in the grid.
@@ -86,13 +66,15 @@ class MineSweeper:
             list[list[int]]: contains a 2-D list for whether a cell is a bomb (-1 value) or count
             of neighboring bombs(0-8).
         """
-        positions = [[0 for j in range(self.mine_cols)] for i in range(self.mine_rows)]
-        first_pos = first_time[0] * self.mine_rows + first_time[1]
-        not_possible_positions = [
-            r * self.mine_rows + c
-            for r, c in self.get_neighbors(first_time[0], first_time[1])
+        positions: list[list[int]] = [
+            [0 for j in range(self.mine_cols)] for i in range(self.mine_rows)
         ]
-        not_possible_positions.append(first_pos)
+        first_pos: int = first_time[0] * self.mine_cols + first_time[1]
+        not_possible_positions = {
+            r * self.mine_cols + c
+            for r, c in self.get_neighbors(first_time[0], first_time[1])
+        }
+        not_possible_positions.add(first_pos)
         pick_from: list[int] = [
             i
             for i in range(self.mine_rows * self.mine_cols)
@@ -101,79 +83,69 @@ class MineSweeper:
         random_mine_positions = random.sample(pick_from, k=self.num_of_mines)
 
         for pos in random_mine_positions:
-            row = pos // self.mine_rows
+            row = pos // self.mine_cols
             col = pos % self.mine_cols
             positions[row][col] = -1
         for i in range(self.mine_rows):
             for j in range(self.mine_cols):
                 if positions[i][j] != -1:
                     neigbors = self.get_neighbors(i, j)
-                    for neighbor in neigbors:
+                    for neighb_row, neighb_col in neigbors:
                         positions[i][j] += (
-                            positions[neighbor[0]][neighbor[1]] == -1
+                            positions[neighb_row][neighb_col] == -1
                         )  # count mines
-        return positions
+        for i in range(self.mine_rows):
+            for j in range(self.mine_cols):
+                self.grid[i][j].num_neighboring_bombs = positions[i][j]
+                self.grid[i][j].is_mine = positions[i][j] == -1
 
-    def pressed(self, row: int, col: int) -> None:
+    def left_clicked(self, row: int, col: int) -> None:
         """presses the cell
         Args:
             row(int): row of current cell ranging between [0-self.mine_rows]
             col(int): col of current cell ranging between [0-self.mine_cols]
         """
-        if self.grid_flag_state[row][col] == CellFlagState.flagged:
-            return
+        match self.grid[row][col].flag_state:
+            case CellFlagState.revealed:
+                # TODO: implement click on it feature to reveal neighbors
+                return
+            case CellFlagState.flagged:
+                return
+            case CellFlagState.hidden:
+                if not self.player_pressed_once:
+                    self.find_mine_positions((row, col))
+                    self.player_pressed_once = True
+                self.grid[row][col].reveal(self.bomb_photo)
+                if self.grid[row][col].is_mine:
+                    self.game_over = True
+                    self.reveal_all_bombs()
+                elif self.grid[row][col].num_neighboring_bombs == 0:
+                    for r, c in self.get_neighbors(row, col):
+                        self.grid[r][c].button.invoke()
 
-        if self.grid_flag_state[row][col] == CellFlagState.revealed:
-            return
-
-        self.grid_flag_state[row][col] = CellFlagState.revealed
-        if not self.player_pressed_once:
-            self.mine_positions: list[list[int]] = self.get_mine_positions(
-                first_time=(row, col)
-            )
-            self.player_pressed_once = True
-        text = str(self.mine_positions[row][col])
-        self.grid[row][col].configure(text=text, relief=tk.SUNKEN, state="disabled")
-        # if pressed cell is a bomb end game
-        if text == "-1":
-            self.game_over = True
-            self.grid[row][col].configure(
-                image=self.bomb_photo,
-                width=CELL_SIZE[1],
-                height=CELL_SIZE[0],
-            )
-            self.reveal_all_bombs()
-        # if it is has no neighboring bombs press all of them.
-        elif text == "0":
-            for r, c in self.get_neighbors(row, col):
-                if self.mine_positions[r][c] != -1:
-                    self.grid[r][c].invoke()
-
-    def button_right_click(self, row: int, col: int) -> None:
+    def right_clicked(self, row: int, col: int) -> None:
         """implements right_click behaviour of button depending on its state"""
         if not self.player_pressed_once:
             return
-        match self.grid_flag_state[row][col]:
+        match self.grid[row][col].flag_state:
             case CellFlagState.revealed:
-                pass
-
+                return
             case CellFlagState.flagged:
                 self.flags_available += 1
-                self.grid_flag_state[row][col] = CellFlagState.hidden
-                self.grid[row][col].configure(
+                self.grid[row][col].flag_state = CellFlagState.hidden
+                self.grid[row][col].button.configure(
                     image="",
                     width=6,
                     height=4,
                 )
-
             case CellFlagState.hidden:
                 if self.flags_available > 0:
                     self.flags_available -= 1
-                    self.grid_flag_state[row][col] = CellFlagState.flagged
-                    self.grid[row][col].configure(
+                    self.grid[row][col].flag_state = CellFlagState.flagged
+                    self.grid[row][col].button.configure(
                         image=self.flag_photo,
-                        width=CELL_SIZE[1],
-                        height=CELL_SIZE[0],
+                        width=Cell.CELL_SIZE[1],
+                        height=Cell.CELL_SIZE[0],
                     )
         self.flag_label.config(text=f"Flags available: {self.flags_available}")
 
@@ -201,8 +173,8 @@ class MineSweeper:
         """presses all bombs after losing the game."""
         for i in range(self.mine_rows):
             for j in range(self.mine_cols):
-                if self.mine_positions[i][j] == -1:
-                    self.grid[i][j].invoke()
+                if self.grid[i][j].is_mine:
+                    self.grid[i][j].button.invoke()
 
     def run(self):
         self.window.mainloop()
