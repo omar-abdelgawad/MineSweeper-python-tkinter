@@ -4,12 +4,11 @@ from PIL import ImageTk, Image
 from cell_flag_state import CellFlagState
 
 # TODO: add clock functionality
-# TODO: change theme/style to have more colors
 # TODO: change cell to a seperate object
 # TODO: add press on cell that has same number of flags around it to clear all other cells feature.
 
 
-PERCENTAGE_OF_MINES = 0.25
+MINES_PERCENTAGE = 0.25
 BOMB_IMAGE_FILE_PATH = r"images/mine.png"
 FLAG_IMAGE_FILE_PATH = r"images/flag.jpg"
 CELL_SIZE = (80, 80)
@@ -19,10 +18,10 @@ BOMB_IMAGE = Image.open(BOMB_IMAGE_FILE_PATH).resize(CELL_SIZE, Image.ANTIALIAS)
 
 class MineSweeper:
     def __init__(self, mine_rows: int, mine_cols: int) -> None:
-        self.mine_rows = mine_rows
-        self.mine_cols = mine_cols
-        self.num_of_mines = int(self.mine_rows * self.mine_cols * PERCENTAGE_OF_MINES)
-        self.flags_available = self.num_of_mines
+        self.mine_rows: int = mine_rows
+        self.mine_cols: int = mine_cols
+        self.num_of_mines: int = int(self.mine_rows * self.mine_cols * MINES_PERCENTAGE)
+        self.flags_available: int = self.num_of_mines
         self.window = tk.Tk()
         self.window.title("Mine Sweeper")
         self.window.resizable(False, False)  ###maybe change in future to resizable
@@ -32,10 +31,17 @@ class MineSweeper:
         self.flag_photo = ImageTk.PhotoImage(FLAG_IMAGE)
         self.bomb_photo = ImageTk.PhotoImage(BOMB_IMAGE)
 
-        # initialize
+        # initialize_game_state
         self.padding: dict = {"padx": 1, "pady": 1}
         self.game_over: bool = False
         self.player_pressed_once: bool = False
+
+        # initializing flag_label and placing it beside the grid
+        self.flag_label: tk.Label = tk.Label(
+            self.window, text=f"Flags available: {self.flags_available}"
+        )
+        self.flag_label.grid(row=0, column=self.mine_cols, **self.padding)
+
         # grid/cell # TODO: remove below and make cell class
         self.mine_positions: list[list[int]] = [[]]
         self.grid: list[list[tk.Button]] = self.draw_grid()
@@ -43,14 +49,6 @@ class MineSweeper:
             [CellFlagState.hidden for j in range(self.mine_cols)]
             for i in range(self.mine_rows)
         ]
-        self.initialize_flag_label()
-
-    def initialize_flag_label(self) -> None:
-        """Initializes flag_label and positions it beside grid"""
-        self.flag_label: tk.Label = tk.Label(
-            self.window, text=f"Flags available: {self.flags_available}"
-        )
-        self.flag_label.grid(row=0, column=self.mine_cols, **self.padding)
 
     def draw_grid(self) -> list[list[tk.Button]]:
         """initializes all buttons and places them as a grid"""
@@ -116,26 +114,6 @@ class MineSweeper:
                         )  # count mines
         return positions
 
-    def get_neighbors(self, row: int, col: int) -> list[tuple[int, int]]:
-        """gets all neighboring cells to a given cell.
-
-        Args:
-            row(int): row of current cell ranging between [0-self.mine_rows]
-            col(int): col of current cell ranging between [0-self.mine_cols]
-        Returns:
-            list[tupele[int,int]]: all neighboring cells within grid bounds.
-        """
-        neighbors = []
-        for dy in range(-1, 2):
-            for dx in range(-1, 2):
-                if (dy == 0) and (dx == 0):
-                    continue
-                if (0 <= row + dy < self.mine_rows) and (
-                    0 <= col + dx < self.mine_cols
-                ):
-                    neighbors.append((row + dy, col + dx))
-        return neighbors
-
     def pressed(self, row: int, col: int) -> None:
         """presses the cell
         Args:
@@ -167,13 +145,6 @@ class MineSweeper:
                 if self.mine_positions[r][c] != -1:
                     self.grid[r][c].invoke()
 
-    def reveal_all_bombs(self) -> None:
-        """presses all bombs after losing the game."""
-        for i in range(self.mine_rows):
-            for j in range(self.mine_cols):
-                if self.mine_positions[i][j] == -1:
-                    self.grid[i][j].invoke()
-
     def button_right_click(self, row: int, col: int) -> None:
         """implements right_click behaviour of button depending on its state"""
         if not self.player_pressed_once:
@@ -201,6 +172,33 @@ class MineSweeper:
                         height=CELL_SIZE[0],
                     )
         self.flag_label.config(text=f"Flags available: {self.flags_available}")
+
+    def get_neighbors(self, row: int, col: int) -> list[tuple[int, int]]:
+        """gets all neighboring cells to a given cell.
+
+        Args:
+            row(int): row of current cell ranging between [0-self.mine_rows]
+            col(int): col of current cell ranging between [0-self.mine_cols]
+        Returns:
+            list[tupele[int,int]]: all neighboring cells within grid bounds.
+        """
+        neighbors = []
+        for dy in range(-1, 2):
+            for dx in range(-1, 2):
+                if (dy == 0) and (dx == 0):
+                    continue
+                if (0 <= row + dy < self.mine_rows) and (
+                    0 <= col + dx < self.mine_cols
+                ):
+                    neighbors.append((row + dy, col + dx))
+        return neighbors
+
+    def reveal_all_bombs(self) -> None:
+        """presses all bombs after losing the game."""
+        for i in range(self.mine_rows):
+            for j in range(self.mine_cols):
+                if self.mine_positions[i][j] == -1:
+                    self.grid[i][j].invoke()
 
     def run(self):
         self.window.mainloop()
