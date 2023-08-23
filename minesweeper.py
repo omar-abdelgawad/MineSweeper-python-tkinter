@@ -3,16 +3,16 @@ import random
 from PIL import ImageTk, Image
 from cell import Cell, CellFlagState
 
+# TODO: change dims of the cell to change according to size of rows and cols
+# TODO: add some padding to the grid to make it make it cleaner
+# TODO: add the requirements.txt file
+# TODO: add press on cell that has same number of flags around it to clear all other cells feature.
 # TODO: document readme well
 # TODO: add clock functionality
 # TODO: add restart button
-# TODO: add press on cell that has same number of flags around it to clear all other cells feature.
 # TODO: add choosing the number of rows and columns at start of game
 # TODO: change the design to make it a bit more like original mines
 # TODO: make an AI that can play the game
-# TODO: change dims of the cell to change according to size of rows and cols
-# TODO: add some padding to the grid to make it make it cleaner
-
 MINES_PERCENTAGE = 0.25
 BOMB_IMAGE_FILE_PATH = r"images/mine.png"
 FLAG_IMAGE_FILE_PATH = r"images/flag.jpg"
