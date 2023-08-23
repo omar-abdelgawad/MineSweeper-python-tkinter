@@ -1,7 +1,7 @@
 import tkinter as tk
 import random
 from PIL import ImageTk, Image
-from cell_flag_state import CellFlagState
+from cell import Cell, CellFlagState
 
 # TODO: add clock functionality
 # TODO: change cell to a seperate object
@@ -93,7 +93,7 @@ class MineSweeper:
             for r, c in self.get_neighbors(first_time[0], first_time[1])
         ]
         not_possible_positions.append(first_pos)
-        pick_from = [
+        pick_from: list[int] = [
             i
             for i in range(self.mine_rows * self.mine_cols)
             if i not in not_possible_positions
@@ -105,7 +105,7 @@ class MineSweeper:
             col = pos % self.mine_cols
             positions[row][col] = -1
         for i in range(self.mine_rows):
-            for j in range(self.mine_rows):
+            for j in range(self.mine_cols):
                 if positions[i][j] != -1:
                     neigbors = self.get_neighbors(i, j)
                     for neighbor in neigbors:
@@ -122,6 +122,10 @@ class MineSweeper:
         """
         if self.grid_flag_state[row][col] == CellFlagState.flagged:
             return
+
+        if self.grid_flag_state[row][col] == CellFlagState.revealed:
+            return
+
         self.grid_flag_state[row][col] = CellFlagState.revealed
         if not self.player_pressed_once:
             self.mine_positions: list[list[int]] = self.get_mine_positions(
