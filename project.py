@@ -41,18 +41,9 @@ class MineSweeper:
         self.start_time: float = time.time()
         self.player_pressed_once: bool = False
 
-        # time label
-        self.time_label = tk.Label(self.window, text="0.00", font=("Helvetica", 48))
-        self.time_label.grid(row=1, column=1, **self.padding)
-        # initializing flag_label and placing it beside the grid
-        self.flag_label: tk.Label = tk.Label(
-            self.window, text=f"Flags available: {self.flags_available}"
-        )
-        self.flag_label.grid(row=0, column=1, padx=2, pady=2)
-
         # initializing grid if Cells
         self.grid_label: tk.Label = tk.Label(self.window, bg="white")
-        self.grid_label.grid(row=0, column=0, **self.padding)
+        self.grid_label.pack(**self.padding)
         self.grid = [
             [Cell(i, j) for j in range(self.mine_cols)] for i in range(self.mine_rows)
         ]
@@ -63,6 +54,14 @@ class MineSweeper:
                     lambda row=i, col=j: self.left_clicked(row, col),
                     lambda event, row=i, col=j: self.right_clicked(row, col),
                 )
+        # initializing flag_label and placing it beside the grid
+        self.flag_label: tk.Label = tk.Label(
+            self.window, text=f"Flags available: {self.flags_available}"
+        )
+        self.flag_label.pack(padx=2, pady=2)
+        # time label
+        self.time_label = tk.Label(self.window, text="0.00", font=("Helvetica", 48))
+        self.time_label.pack(**self.padding)
 
     def find_mine_positions(self, first_time: (tuple[int, int])) -> None:
         """determines all mine positions for the grid excluding the first_clicked_position
@@ -227,6 +226,27 @@ class MineSweeper:
 
     def run(self) -> None:
         self.window.mainloop()
+
+
+def start_of_game(game: MineSweeper) -> bool:
+    if game.game_over:
+        return False
+    return True
+
+
+def check_all_bombs_revealed(game: MineSweeper) -> bool:
+    if not game.game_over:
+        return False
+    for r in range(game.mine_rows):
+        for c in range(game.mine_cols):
+            cur_cell = game.grid[r][c]
+            if cur_cell.is_mine and cur_cell.flag_state != CellFlagState.revealed:
+                return False
+    return True
+
+
+def check_neighbors():
+    pass
 
 
 def main():
