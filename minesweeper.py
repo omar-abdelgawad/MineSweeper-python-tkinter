@@ -136,7 +136,7 @@ class MineSweeper:
                 if not self.player_pressed_once:
                     self.start_game((row, col))
                 self.grid[row][col].reveal(self.bomb_photo)
-                if self.grid[row][col].is_mine:
+                if self.grid[row][col].is_mine and not self.game_over:
                     self.end_game()
                 elif self.grid[row][col].num_neighboring_bombs == 0:
                     for r, c in self.get_neighbors(row, col):
