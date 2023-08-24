@@ -4,7 +4,6 @@ import random
 from PIL import ImageTk, Image
 from cell import Cell, CellFlagState
 
-# TODO: add the requirements.txt file
 # TODO: document readme well
 # TODO: add testing function
 # TODO: add clock functionality
