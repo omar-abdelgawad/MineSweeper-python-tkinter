@@ -13,7 +13,7 @@ from cell import Cell, CellFlagState
 # TODO: maybe change the design to make it a bit more like original mines
 # TODO: make an AI that can play the game
 
-MINES_PERCENTAGE = 0.25
+MINES_PERCENTAGE = 0.35
 BOMB_IMAGE_FILE_PATH = r"images/mine.png"
 FLAG_IMAGE_FILE_PATH = r"images/flag.jpg"
 FLAG_IMAGE = Image.open(FLAG_IMAGE_FILE_PATH).resize(Cell.CELL_SIZE)
@@ -112,6 +112,7 @@ class MineSweeper:
             row(int): row of current cell ranging between [0-self.mine_rows]
             col(int): col of current cell ranging between [0-self.mine_cols]
         """
+        print(f"left Clicked {self.grid[row][col]}")
         match self.grid[row][col].flag_state:
             case CellFlagState.revealed:
                 neighbors = self.get_neighbors(row, col)
@@ -134,7 +135,6 @@ class MineSweeper:
             case CellFlagState.hidden:
                 if not self.player_pressed_once:
                     self.start_game((row, col))
-
                 self.grid[row][col].reveal(self.bomb_photo)
                 if self.grid[row][col].is_mine:
                     self.end_game()
@@ -144,6 +144,7 @@ class MineSweeper:
 
     def right_clicked(self, row: int, col: int) -> None:
         """implements right_click behaviour of button depending on its state"""
+        print(f"Right Clicked {self.grid[row][col]}")
         if not self.player_pressed_once:
             return
         match self.grid[row][col].flag_state:
@@ -188,32 +189,35 @@ class MineSweeper:
                     neighbors.append((row + dy, col + dx))
         return neighbors
 
-    def start_game(self, first_time_cell: tuple[int, int]):
+    def start_game(self, first_time_cell: tuple[int, int]) -> None:
         """initializes bomb positions and clock when a player presses any cell"""
+        print("GAME STARTED")
         self.player_pressed_once = True
         self.find_mine_positions(first_time_cell)
         self.start_clock()
 
-    def start_clock(self):
+    def start_clock(self) -> None:
         self.start_time = time.time()
         self.update_time()
 
-    def update_time(self):
+    def update_time(self) -> None:
         if not self.game_over:
             elapsed_time = time.time() - self.start_time
             self.time_label.config(text="{:.2f}".format(elapsed_time))
             self.time_label.after(50, self.update_time)
 
-    def stop_clock(self):
+    def stop_clock(self) -> None:
         raise NotImplementedError
 
-    def end_game(self):
+    def end_game(self) -> None:
         # self.stop_clock()
         self.game_over = True
         self.reveal_all_bombs()
+        print("GAME ENDED")
 
     def reveal_all_bombs(self) -> None:
-        """presses all bombs after losing the game."""
+        """presses all bombs after losing the game. if the bomb is flagged then it changes it to hidden
+        to press it."""
         for i in range(self.mine_rows):
             for j in range(self.mine_cols):
                 if self.grid[i][j].is_mine:
@@ -221,7 +225,7 @@ class MineSweeper:
                         self.right_clicked(i, j)
                     self.grid[i][j].button.invoke()
 
-    def run(self):
+    def run(self) -> None:
         self.window.mainloop()
 
 

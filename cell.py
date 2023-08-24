@@ -10,6 +10,11 @@ class CellFlagState(Enum):
 
 class Cell:
     CELL_SIZE = (80, 80)
+    flag_states_str = {
+        CellFlagState.revealed: "revealed",
+        CellFlagState.flagged: "flagged",
+        CellFlagState.hidden: "hidden",
+    }
 
     def __init__(self, row: int, col: int) -> None:
         self.row = row
@@ -19,6 +24,9 @@ class Cell:
         self.flag_state = CellFlagState.hidden
         self.button = tk.Button()
         self.padding: dict = {"padx": 3, "pady": 3}
+
+    def __str__(self):
+        return f"Cell at row {self.row}, col {self.col}, and its state is {Cell.flag_states_str[self.flag_state]}"
 
     def embed_button_actions(self, master, left_click, right_click):
         """embeds the right and left click actions to the buttons"""
