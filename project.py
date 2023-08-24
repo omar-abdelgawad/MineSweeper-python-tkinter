@@ -62,7 +62,7 @@ class MineSweeper:
         )
         self.flag_label.pack(padx=2, pady=2)
         # time label
-        self.time_label = tk.Label(self.window, text="0.00", font=("Helvetica", 48))
+        self.time_label = tk.Label(self.window, text="0", font=("Helvetica", 48))
         self.time_label.pack(**self.padding)
         # restart button
         self.restart_button = tk.Button(
@@ -90,7 +90,9 @@ class MineSweeper:
         first_pos: int = first_time[0] * self.mine_cols + first_time[1]
         not_possible_positions = {
             r * self.mine_cols + c
-            for r, c in self.get_neighbors(first_time[0], first_time[1])
+            for r, c in get_neighbors(
+                first_time[0], first_time[1], self.mine_rows, self.mine_cols
+            )
         }
         not_possible_positions.add(first_pos)
         pick_from: list[int] = [
@@ -107,7 +109,7 @@ class MineSweeper:
         for i in range(self.mine_rows):
             for j in range(self.mine_cols):
                 if positions[i][j] != -1:
-                    neigbors = self.get_neighbors(i, j)
+                    neigbors = get_neighbors(i, j, self.mine_rows, self.mine_cols)
                     for neighb_row, neighb_col in neigbors:
                         positions[i][j] += (
                             positions[neighb_row][neighb_col] == -1
@@ -126,7 +128,7 @@ class MineSweeper:
         print(f"left Clicked {self.grid[row][col]}")
         match self.grid[row][col].flag_state:
             case CellFlagState.revealed:
-                neighbors = self.get_neighbors(row, col)
+                neighbors = get_neighbors(row, col, self.mine_rows, self.mine_cols)
                 cnts = {
                     CellFlagState.flagged: 0,
                     CellFlagState.hidden: 0,
@@ -150,7 +152,7 @@ class MineSweeper:
                 if self.grid[row][col].is_mine and not self.game_over:
                     self.end_game()
                 elif self.grid[row][col].num_neighboring_bombs == 0:
-                    for r, c in self.get_neighbors(row, col):
+                    for r, c in get_neighbors(row, col, self.mine_rows, self.mine_cols):
                         self.grid[r][c].button.invoke()
 
     def right_clicked(self, row: int, col: int) -> None:
@@ -180,26 +182,6 @@ class MineSweeper:
                     )
         self.flag_label.config(text=f"Flags available: {self.flags_available}")
 
-    def get_neighbors(self, row: int, col: int) -> list[tuple[int, int]]:
-        """gets all neighboring cells for a given cell.
-
-        Args:
-            row(int): row of current cell ranging between [0-self.mine_rows]
-            col(int): col of current cell ranging between [0-self.mine_cols]
-        Returns:
-            list[tupele[int,int]]: all neighboring cells within grid bounds.
-        """
-        neighbors = []
-        for dy in range(-1, 2):
-            for dx in range(-1, 2):
-                if (dy == 0) and (dx == 0):
-                    continue
-                if (0 <= row + dy < self.mine_rows) and (
-                    0 <= col + dx < self.mine_cols
-                ):
-                    neighbors.append((row + dy, col + dx))
-        return neighbors
-
     def start_game(self, first_time_cell: tuple[int, int]) -> None:
         """initializes bomb positions and clock when a player presses any cell"""
         print("GAME STARTED")
@@ -214,7 +196,7 @@ class MineSweeper:
     def update_time(self) -> None:
         if not self.game_over:
             elapsed_time = time.time() - self.start_time
-            self.time_label.config(text="{:.2f}".format(elapsed_time))
+            self.time_label.config(text="{:.0f}s".format(elapsed_time))
             self.time_label.after(50, self.update_time)
 
     def stop_clock(self) -> None:
@@ -240,9 +222,33 @@ class MineSweeper:
         self.window.mainloop()
 
 
-def restart_game(game: MineSweeper):
+def restart_game(game: MineSweeper) -> None:
+    """kills current app and reinitializes it."""
     game.window.destroy()
     game = MineSweeper(game.mine_rows, game.mine_cols)
+
+
+def get_neighbors(
+    row: int, col: int, max_rows: int, max_cols: int
+) -> list[tuple[int, int]]:
+    """gets all neighboring cells for a given cell.
+
+    Args:
+        row(int): row of current cell ranging between [0-self.mine_rows]
+        col(int): col of current cell ranging between [0-self.mine_cols]
+        max_rows(int): num of rows in the grid
+        max_cols(int): num of cols in the grid
+    Returns:
+        list[tupele[int,int]]: all neighboring cells within grid bounds.
+    """
+    neighbors = []
+    for dy in range(-1, 2):
+        for dx in range(-1, 2):
+            if (dy == 0) and (dx == 0):
+                continue
+            if (0 <= row + dy < max_rows) and (0 <= col + dx < max_cols):
+                neighbors.append((row + dy, col + dx))
+    return neighbors
 
 
 def start_of_game(game: MineSweeper) -> bool:
@@ -261,10 +267,6 @@ def check_all_bombs_revealed(game: MineSweeper) -> bool:
             if cur_cell.is_mine and cur_cell.flag_state != CellFlagState.revealed:
                 return False
     return True
-
-
-def check_get_neighbors():
-    raise NotImplemented
 
 
 def main():
