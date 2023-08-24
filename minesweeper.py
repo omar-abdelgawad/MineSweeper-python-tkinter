@@ -1,3 +1,4 @@
+#! ./.venv/bin/python
 import tkinter as tk
 import random
 from PIL import ImageTk, Image
