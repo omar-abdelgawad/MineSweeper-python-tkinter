@@ -1,12 +1,12 @@
 #! ./.venv/bin/python
 import tkinter as tk
 import random
+import time
 from PIL import ImageTk, Image
 from cell import Cell, CellFlagState
 
 # TODO: document readme well
 # TODO: add testing function
-# TODO: add clock functionality
 # TODO: change dims of the cell to change according to size of rows and cols
 # TODO: add restart button
 # TODO: add choosing the number of rows and columns at start of game
@@ -27,6 +27,7 @@ class MineSweeper:
         self.num_of_mines: int = int(self.mine_rows * self.mine_cols * MINES_PERCENTAGE)
         self.flags_available: int = self.num_of_mines
         self.window = tk.Tk()
+        self.window.configure(bg="white")
         self.window.title("Mine Sweeper")
         self.window.resizable(False, False)  ###maybe change in future to resizable
 
@@ -37,8 +38,12 @@ class MineSweeper:
         # initialize_game_state
         self.padding: dict = {"padx": 10, "pady": 10}
         self.game_over: bool = False
+        self.start_time: float = time.time()
         self.player_pressed_once: bool = False
 
+        # time label
+        self.time_label = tk.Label(self.window, text="0.00", font=("Helvetica", 48))
+        self.time_label.grid(row=1, column=1, **self.padding)
         # initializing flag_label and placing it beside the grid
         self.flag_label: tk.Label = tk.Label(
             self.window, text=f"Flags available: {self.flags_available}"
@@ -46,7 +51,7 @@ class MineSweeper:
         self.flag_label.grid(row=0, column=1, padx=2, pady=2)
 
         # initializing grid if Cells
-        self.grid_label: tk.Label = tk.Label(self.window)
+        self.grid_label: tk.Label = tk.Label(self.window, bg="white")
         self.grid_label.grid(row=0, column=0, **self.padding)
         self.grid = [
             [Cell(i, j) for j in range(self.mine_cols)] for i in range(self.mine_rows)
@@ -128,12 +133,11 @@ class MineSweeper:
                 return
             case CellFlagState.hidden:
                 if not self.player_pressed_once:
-                    self.find_mine_positions((row, col))
-                    self.player_pressed_once = True
+                    self.start_game((row, col))
+
                 self.grid[row][col].reveal(self.bomb_photo)
                 if self.grid[row][col].is_mine:
-                    self.game_over = True
-                    self.reveal_all_bombs()
+                    self.end_game()
                 elif self.grid[row][col].num_neighboring_bombs == 0:
                     for r, c in self.get_neighbors(row, col):
                         self.grid[r][c].button.invoke()
@@ -183,6 +187,30 @@ class MineSweeper:
                 ):
                     neighbors.append((row + dy, col + dx))
         return neighbors
+
+    def start_game(self, first_time_cell: tuple[int, int]):
+        """initializes bomb positions and clock when a player presses any cell"""
+        self.player_pressed_once = True
+        self.find_mine_positions(first_time_cell)
+        self.start_clock()
+
+    def start_clock(self):
+        self.start_time = time.time()
+        self.update_time()
+
+    def update_time(self):
+        if not self.game_over:
+            elapsed_time = time.time() - self.start_time
+            self.time_label.config(text="{:.2f}".format(elapsed_time))
+            self.time_label.after(50, self.update_time)
+
+    def stop_clock(self):
+        raise NotImplementedError
+
+    def end_game(self):
+        # self.stop_clock()
+        self.game_over = True
+        self.reveal_all_bombs()
 
     def reveal_all_bombs(self) -> None:
         """presses all bombs after losing the game."""

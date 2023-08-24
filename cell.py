@@ -8,13 +8,6 @@ class CellFlagState(Enum):
     hidden = auto()
 
 
-# bool for bomb or not
-# int for how many surrounding bombs
-# button
-# cell_flag_state
-# implement right and left clicking while changing state
-
-
 class Cell:
     CELL_SIZE = (80, 80)
 
