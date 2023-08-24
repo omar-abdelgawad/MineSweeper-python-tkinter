@@ -3,16 +3,16 @@ import random
 from PIL import ImageTk, Image
 from cell import Cell, CellFlagState
 
-# TODO: change dims of the cell to change according to size of rows and cols
-# TODO: add some padding to the grid to make it make it cleaner
 # TODO: add the requirements.txt file
-# TODO: add press on cell that has same number of flags around it to clear all other cells feature.
 # TODO: document readme well
+# TODO: add testing function
 # TODO: add clock functionality
+# TODO: change dims of the cell to change according to size of rows and cols
 # TODO: add restart button
 # TODO: add choosing the number of rows and columns at start of game
-# TODO: change the design to make it a bit more like original mines
+# TODO: maybe change the design to make it a bit more like original mines
 # TODO: make an AI that can play the game
+
 MINES_PERCENTAGE = 0.25
 BOMB_IMAGE_FILE_PATH = r"images/mine.png"
 FLAG_IMAGE_FILE_PATH = r"images/flag.jpg"
@@ -35,7 +35,7 @@ class MineSweeper:
         self.bomb_photo = ImageTk.PhotoImage(BOMB_IMAGE)
 
         # initialize_game_state
-        self.padding: dict = {"padx": 1, "pady": 1}
+        self.padding: dict = {"padx": 10, "pady": 10}
         self.game_over: bool = False
         self.player_pressed_once: bool = False
 
@@ -43,16 +43,18 @@ class MineSweeper:
         self.flag_label: tk.Label = tk.Label(
             self.window, text=f"Flags available: {self.flags_available}"
         )
-        self.flag_label.grid(row=0, column=self.mine_cols, **self.padding)
+        self.flag_label.grid(row=0, column=1, padx=2, pady=2)
 
         # initializing grid if Cells
+        self.grid_label: tk.Label = tk.Label(self.window)
+        self.grid_label.grid(row=0, column=0, **self.padding)
         self.grid = [
             [Cell(i, j) for j in range(self.mine_cols)] for i in range(self.mine_rows)
         ]
         for i in range(self.mine_rows):
             for j in range(self.mine_cols):
                 self.grid[i][j].embed_button_actions(
-                    self.window,
+                    self.grid_label,
                     lambda row=i, col=j: self.left_clicked(row, col),
                     lambda event, row=i, col=j: self.right_clicked(row, col),
                 )
@@ -107,8 +109,21 @@ class MineSweeper:
         """
         match self.grid[row][col].flag_state:
             case CellFlagState.revealed:
-                # TODO: implement click on it feature to reveal neighbors
-                return
+                neighbors = self.get_neighbors(row, col)
+                cnts = {
+                    CellFlagState.flagged: 0,
+                    CellFlagState.hidden: 0,
+                    CellFlagState.revealed: 0,
+                }
+                for r, c in neighbors:
+                    cnts[self.grid[r][c].flag_state] += 1
+                if (
+                    cnts[CellFlagState.flagged]
+                    == self.grid[row][col].num_neighboring_bombs
+                ):
+                    for r, c in neighbors:
+                        if self.grid[r][c].flag_state == CellFlagState.hidden:
+                            self.grid[r][c].button.invoke()
             case CellFlagState.flagged:
                 return
             case CellFlagState.hidden:
@@ -150,7 +165,7 @@ class MineSweeper:
         self.flag_label.config(text=f"Flags available: {self.flags_available}")
 
     def get_neighbors(self, row: int, col: int) -> list[tuple[int, int]]:
-        """gets all neighboring cells to a given cell.
+        """gets all neighboring cells for a given cell.
 
         Args:
             row(int): row of current cell ranging between [0-self.mine_rows]
@@ -174,6 +189,8 @@ class MineSweeper:
         for i in range(self.mine_rows):
             for j in range(self.mine_cols):
                 if self.grid[i][j].is_mine:
+                    if self.grid[i][j].flag_state == CellFlagState.flagged:
+                        self.right_clicked(i, j)
                     self.grid[i][j].button.invoke()
 
     def run(self):
@@ -181,7 +198,7 @@ class MineSweeper:
 
 
 def main():
-    game = MineSweeper(10, 10)
+    game = MineSweeper(8, 8)
     game.run()
 
 
