@@ -6,7 +6,6 @@ from PIL import ImageTk, Image
 from cell import Cell, CellFlagState
 
 # TODO: document readme well
-# TODO: take screenshots and add it to images for readme.md
 # TODO: add testing function
 # TODO: record video
 
