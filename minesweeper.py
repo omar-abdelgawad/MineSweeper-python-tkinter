@@ -10,12 +10,12 @@ from cell import Cell, CellFlagState
 # TODO: change dims of the cell to change according to size of rows and cols
 # TODO: add restart button
 # TODO: add choosing the number of rows and columns at start of game
-# TODO: maybe change the design to make it a bit more like original mines
+# TODO: maybe change the design to make it a bit more like original Mines
 # TODO: make an AI that can play the game
 
 MINES_PERCENTAGE = 0.35
-BOMB_IMAGE_FILE_PATH = r"images/mine.png"
-FLAG_IMAGE_FILE_PATH = r"images/flag.jpg"
+BOMB_IMAGE_FILE_PATH = "images/mine.png"
+FLAG_IMAGE_FILE_PATH = "images/flag.jpg"
 FLAG_IMAGE = Image.open(FLAG_IMAGE_FILE_PATH).resize(Cell.CELL_SIZE)
 BOMB_IMAGE = Image.open(BOMB_IMAGE_FILE_PATH).resize(Cell.CELL_SIZE)
 
