@@ -8,7 +8,7 @@ from cell import Cell, CellFlagState
 # TODO: document readme well
 # TODO: take screenshots and add it to images for readme.md
 # TODO: add testing function
-# TODO: recorde video
+# TODO: record video
 
 # TODO: change dims of the cell to change according to size of rows and cols
 # TODO: add choosing the number of rows and columns at start of game
@@ -62,7 +62,7 @@ class MineSweeper:
         )
         self.flag_label.pack(padx=2, pady=2)
         # time label
-        self.time_label = tk.Label(self.window, text="0", font=("Helvetica", 48))
+        self.time_label = tk.Label(self.window, text="0s", font=("Helvetica", 48))
         self.time_label.pack(**self.padding)
         # restart button
         self.restart_button = tk.Button(
@@ -252,6 +252,7 @@ def get_neighbors(
 
 
 def start_of_game(game: MineSweeper) -> bool:
+    """check for start of game state"""
     # also test that you can't lose from first move and neighboring cells are also not bombs
     if game.game_over:
         return False
@@ -259,6 +260,7 @@ def start_of_game(game: MineSweeper) -> bool:
 
 
 def check_all_bombs_revealed(game: MineSweeper) -> bool:
+    """makes sure that all bombs have been revealed"""
     if not game.game_over:
         return False
     for r in range(game.mine_rows):
