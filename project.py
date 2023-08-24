@@ -6,9 +6,11 @@ from PIL import ImageTk, Image
 from cell import Cell, CellFlagState
 
 # TODO: document readme well
+# TODO: take screenshots and add it to images for readme.md
 # TODO: add testing function
+# TODO: recorde video
+
 # TODO: change dims of the cell to change according to size of rows and cols
-# TODO: add restart button
 # TODO: add choosing the number of rows and columns at start of game
 # TODO: maybe change the design to make it a bit more like original Mines
 # TODO: make an AI that can play the game
@@ -62,6 +64,16 @@ class MineSweeper:
         # time label
         self.time_label = tk.Label(self.window, text="0.00", font=("Helvetica", 48))
         self.time_label.pack(**self.padding)
+        # restart button
+        self.restart_button = tk.Button(
+            master=self.window,
+            width=8,
+            height=4,
+            relief=tk.RAISED,
+            text="Restart",
+            command=lambda game=self: restart_game(game),
+        )
+        self.restart_button.place(x=550, y=850)
 
     def find_mine_positions(self, first_time: (tuple[int, int])) -> None:
         """determines all mine positions for the grid excluding the first_clicked_position
@@ -228,7 +240,13 @@ class MineSweeper:
         self.window.mainloop()
 
 
+def restart_game(game: MineSweeper):
+    game.window.destroy()
+    game = MineSweeper(game.mine_rows, game.mine_cols)
+
+
 def start_of_game(game: MineSweeper) -> bool:
+    # also test that you can't lose from first move and neighboring cells are also not bombs
     if game.game_over:
         return False
     return True
@@ -245,8 +263,8 @@ def check_all_bombs_revealed(game: MineSweeper) -> bool:
     return True
 
 
-def check_neighbors():
-    pass
+def check_get_neighbors():
+    raise NotImplemented
 
 
 def main():
