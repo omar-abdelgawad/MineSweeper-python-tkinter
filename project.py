@@ -3,6 +3,7 @@ import tkinter as tk
 import random
 import time
 from PIL import ImageTk, Image
+import argparse
 from cell import Cell, CellFlagState
 
 # TODO: document readme well
@@ -62,7 +63,7 @@ class MineSweeper:
         self.flag_label.pack(padx=2, pady=2)
         # time label
         self.time_label = tk.Label(self.window, text="0s", font=("Helvetica", 48))
-        self.time_label.pack(**self.padding)
+        self.time_label.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
         # restart button
         self.restart_button = tk.Button(
             master=self.window,
@@ -72,7 +73,7 @@ class MineSweeper:
             text="Restart",
             command=lambda game=self: restart_game(game),
         )
-        self.restart_button.place(x=550, y=850)
+        self.restart_button.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
 
     def find_mine_positions(self, first_time: (tuple[int, int])) -> None:
         """determines all mine positions for the grid excluding the first_clicked_position
@@ -250,8 +251,9 @@ def get_neighbors(
     return neighbors
 
 
-def check_game_rows_and_cols():
-    pass
+def check_game_rows_and_cols(rows: int, cols: int) -> tuple[int, int]:
+    """returns rows and cols after checking if they have values in specefied range or not."""
+    raise NotImplementedError
 
 
 # def start_of_game(game: MineSweeper) -> bool:
@@ -275,9 +277,14 @@ def check_game_rows_and_cols():
 
 
 def main():
-    # TODO: Add Argparse and check that input is always entered correctly otherwise set to default.
-    rows = 2
-    cols = 2
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-r", "--rows", type=int, default=8)
+    parser.add_argument("-c", "--columns", type=int, default=8)
+    args = parser.parse_args()
+    rows = args.rows
+    cols = args.columns
+    # TODO: check that input is always entered correctly otherwise set to default.
+    print(args)
     game = MineSweeper(rows, cols)
     game.run()
 

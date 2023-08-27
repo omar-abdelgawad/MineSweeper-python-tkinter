@@ -1,19 +1,13 @@
-from project import (
-    MineSweeper,
-    check_all_bombs_revealed,
-    get_neighbors,
-    start_of_game,
-    restart_game,
-)
+from project import MineSweeper, get_neighbors, restart_game, check_game_rows_and_cols
 
 
 def test_get_neighbors():
     pass
 
 
-def test_start_of_game():
+def test_restart_game():
     pass
 
 
-def test_restart_game():
+def test_check_game_rows_and_cols():
     pass
