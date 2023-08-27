@@ -99,8 +99,8 @@ class MineSweeper:
             for i in range(self.mine_rows * self.mine_cols)
             if i not in not_possible_positions
         ]
+        self.num_of_mines = min(self.num_of_mines, len(pick_from))
         random_mine_positions = random.sample(pick_from, k=self.num_of_mines)
-
         for pos in random_mine_positions:
             row = pos // self.mine_cols
             col = pos % self.mine_cols
@@ -250,28 +250,35 @@ def get_neighbors(
     return neighbors
 
 
-def start_of_game(game: MineSweeper) -> bool:
-    """check for start of game state"""
-    # also test that you can't lose from first move and neighboring cells are also not bombs
-    if game.game_over:
-        return False
-    return True
+def check_game_rows_and_cols():
+    pass
 
 
-def check_all_bombs_revealed(game: MineSweeper) -> bool:
-    """makes sure that all bombs have been revealed"""
-    if not game.game_over:
-        return False
-    for r in range(game.mine_rows):
-        for c in range(game.mine_cols):
-            cur_cell = game.grid[r][c]
-            if cur_cell.is_mine and cur_cell.flag_state != CellFlagState.revealed:
-                return False
-    return True
+# def start_of_game(game: MineSweeper) -> bool:
+#     """check for start of game state"""
+#     # also test that you can't lose from first move and neighboring cells are also not bombs
+#     if game.game_over:
+#         return False
+#     return True
+
+
+# def check_all_bombs_revealed(game: MineSweeper) -> bool:
+#     """makes sure that all bombs have been revealed"""
+#     if not game.game_over:
+#         return False
+#     for r in range(game.mine_rows):
+#         for c in range(game.mine_cols):
+#             cur_cell = game.grid[r][c]
+#             if cur_cell.is_mine and cur_cell.flag_state != CellFlagState.revealed:
+#                 return False
+#     return True
 
 
 def main():
-    game = MineSweeper(8, 8)
+    # TODO: Add Argparse and check that input is always entered correctly otherwise set to default.
+    rows = 2
+    cols = 2
+    game = MineSweeper(rows, cols)
     game.run()
 
 
