@@ -8,9 +8,9 @@
 ## How to Install
 1. Navigate to the main page of the [repository](https://github.com/omar-abdelgawad/MineSweeper-python-tkinter).
 1. Click <> **Code**.
-
-![alt text](images/repo_code_image.png)
-
+<div align="center">
+<img src="images/repo_code_image.png" alt="green code box in repo image">
+</div>
 1. Copy the url for the repository using any method.
 1. open Terminal on you local machine and navigate to the directory in which you want to download this repo.
 1. Type `git clone` and then paste the url that you just copied before. When you press enter this repository will be cloned to your local machine.
