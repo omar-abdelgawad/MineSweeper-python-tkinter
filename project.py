@@ -8,7 +8,6 @@ from cell import Cell, CellFlagState
 from typing import Optional, Sequence
 
 # TODO: document readme well
-# TODO: add testing function
 # TODO: record video
 
 # TODO: Stop time when game is finished won
