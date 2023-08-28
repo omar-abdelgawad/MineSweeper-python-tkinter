@@ -5,11 +5,13 @@ import time
 from PIL import ImageTk, Image
 import argparse
 from cell import Cell, CellFlagState
+from typing import Optional, Sequence
 
 # TODO: document readme well
 # TODO: add testing function
 # TODO: record video
 
+# TODO: Stop time when game is finished won
 # TODO: change dims of the cell to change according to size of rows and cols
 # TODO: add choosing the number of rows and columns at start of game
 # TODO: maybe change the design to make it a bit more like original Mines
@@ -20,6 +22,8 @@ BOMB_IMAGE_FILE_PATH = "images/mine.png"
 FLAG_IMAGE_FILE_PATH = "images/flag.jpg"
 FLAG_IMAGE = Image.open(FLAG_IMAGE_FILE_PATH).resize(Cell.CELL_SIZE)
 BOMB_IMAGE = Image.open(BOMB_IMAGE_FILE_PATH).resize(Cell.CELL_SIZE)
+DEFUALT_NUM_ROWS = 8
+DEFUALT_NUM_COLS = 8
 
 
 class MineSweeper:
@@ -150,7 +154,7 @@ class MineSweeper:
                     self.start_game((row, col))
                 self.grid[row][col].reveal(self.bomb_photo)
                 if self.grid[row][col].is_mine and not self.game_over:
-                    self.end_game()
+                    self.lose_game_over()
                 elif self.grid[row][col].num_neighboring_bombs == 0:
                     for r, c in get_neighbors(row, col, self.mine_rows, self.mine_cols):
                         self.grid[r][c].button.invoke()
@@ -202,7 +206,7 @@ class MineSweeper:
     def stop_clock(self) -> None:
         raise NotImplementedError
 
-    def end_game(self) -> None:
+    def lose_game_over(self) -> None:
         # self.stop_clock()
         self.game_over = True
         self.reveal_all_bombs()
@@ -230,7 +234,7 @@ def restart_game(game: MineSweeper) -> None:
 
 def get_neighbors(
     row: int, col: int, max_rows: int, max_cols: int
-) -> list[tuple[int, int]]:
+) -> set[tuple[int, int]]:
     """gets all neighboring cells for a given cell.
 
     Args:
@@ -241,50 +245,40 @@ def get_neighbors(
     Returns:
         list[tupele[int,int]]: all neighboring cells within grid bounds.
     """
-    neighbors = []
+    neighbors = set()
     for dy in range(-1, 2):
         for dx in range(-1, 2):
             if (dy == 0) and (dx == 0):
                 continue
             if (0 <= row + dy < max_rows) and (0 <= col + dx < max_cols):
-                neighbors.append((row + dy, col + dx))
+                neighbors.add((row + dy, col + dx))
     return neighbors
 
 
-def check_game_rows_and_cols(rows: int, cols: int) -> tuple[int, int]:
+def handle_command_line(argv: Optional[Sequence[str]]) -> tuple[int, int]:
     """returns rows and cols after checking if they have values in specefied range or not."""
-    raise NotImplementedError
-
-
-# def start_of_game(game: MineSweeper) -> bool:
-#     """check for start of game state"""
-#     # also test that you can't lose from first move and neighboring cells are also not bombs
-#     if game.game_over:
-#         return False
-#     return True
-
-
-# def check_all_bombs_revealed(game: MineSweeper) -> bool:
-#     """makes sure that all bombs have been revealed"""
-#     if not game.game_over:
-#         return False
-#     for r in range(game.mine_rows):
-#         for c in range(game.mine_cols):
-#             cur_cell = game.grid[r][c]
-#             if cur_cell.is_mine and cur_cell.flag_state != CellFlagState.revealed:
-#                 return False
-#     return True
-
-
-def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-r", "--rows", type=int, default=8)
-    parser.add_argument("-c", "--columns", type=int, default=8)
-    args = parser.parse_args()
+    parser.add_argument("-r", "--rows", type=int, default=DEFUALT_NUM_ROWS)
+    parser.add_argument("-c", "--columns", type=int, default=DEFUALT_NUM_COLS)
+    args = parser.parse_args(argv)
     rows = args.rows
     cols = args.columns
+    if rows not in range(4, 10):
+        print(
+            f"number of rows specefied not in range [4-9]. Rows changed back to default={DEFUALT_NUM_ROWS}"
+        )
+        rows = DEFUALT_NUM_ROWS
+    if cols not in range(4, 10):
+        print(
+            f"number of columns specefied not in range [4-9]. Columns changed back to default={DEFUALT_NUM_COLS}"
+        )
+        cols = DEFUALT_NUM_COLS
+    return rows, cols
+
+
+def main(argv: Optional[Sequence[str]] = None):
+    rows, cols = handle_command_line(argv)
     # TODO: check that input is always entered correctly otherwise set to default.
-    print(args)
     game = MineSweeper(rows, cols)
     game.run()
 
