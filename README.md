@@ -14,7 +14,7 @@
 
 1. Copy the url for the repository using any method.
 1. open Terminal on you local machine and navigate to the directory in which you want to download this repo.
-1. Type `git clone` and then paste the url that you just copied before. When you press enter this repository will be cloned to your local machine.
+1. Type `git clone` and then paste the url you just copied. When you press enter this repository will be cloned to your local machine.
     ```bash
     git clone url_you_just_copied
     ```
@@ -34,12 +34,12 @@
     ```
 ## Usage
 
-The game mimicks the famous minesweeper where the starting grid contains cells that are either mines or not (which is hidden ofc). You can expect to have an open window very similar to this one.
+The app mimicks the famous Minesweeper game where the starting grid contains cells that are either mines or not (which is hidden ofc). You can expect to have an open window very similar to this one.
 <div align="center">
 <img src="images/game_at_start.png",alt="image of game at start">
 </div>
 
-You can start by pressing any cell you like. **Don't worry** you can't lose from the first move. Once you hit a cell a **number** will be displayed on it. That number tells you how many mines are diagonally and/or adjacent to it. If you are lucky enough to hit a 0 then all neighboring cells to it are unlocked automatically.
+You can start by pressing any cell you like to reveal it. **Don't worry** you can't lose from the first move. Once you hit a cell a **number** will be displayed on it. That number tells you how many mines are diagonally and/or adjacent to it. If you are lucky enough to hit a 0 then all neighboring cells to it are unlocked automatically.
 
 Once you hit the first cell you will probably see something like the following image.
 
