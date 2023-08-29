@@ -1,4 +1,6 @@
 # tk-Minesweeper
+#### Video Demo: 
+#### Description:
 - Created the famous Minesweeper game as a CS50P final project.
 - Entire gui is made using Tkinter.
 ### table of contents
@@ -41,11 +43,11 @@ The app mimicks the famous Minesweeper game where the starting grid contains cel
 
 You can start by pressing any cell you like to reveal it. **Don't worry** you can't lose from the first move. Once you hit a cell a **number** will be displayed on it. That number tells you how many mines are diagonally and/or adjacent to it. If you are lucky enough to hit a 0 then all neighboring cells to it are unlocked automatically.
 
-Once you hit the first cell you will probably see something like the following image.
+Once you hit the first cell you will probably see a number of cells getting unlocked like the following image.
 
 <div align="center">
 <img src="images/first_pressed_cell.png",alt="image of first pressed cell">
 </div>
 Note that the first pressed cell always has 0 neighboring mines.
 
-The goal is to unlock all non-mine cell in the shortest amount of time.
+The goal is to unlock all non-mine cells in the shortest amount of time.

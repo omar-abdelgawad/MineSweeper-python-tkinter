@@ -7,9 +7,6 @@ import argparse
 from cell import Cell, CellFlagState
 from typing import Optional, Sequence
 
-# TODO: document readme well
-# TODO: record video
-
 # TODO: Stop time when game is finished won
 # TODO: change dims of the cell to change according to size of rows and cols
 # TODO: add choosing the number of rows and columns at start of game
