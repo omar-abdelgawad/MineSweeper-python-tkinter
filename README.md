@@ -1,6 +1,9 @@
 # tk-Minesweeper
-#### Video Demo: 
+
+#### Video Demo: https://youtu.be/98Y7Qg1k6lk 
+
 #### Description:
+
 - Created the famous Minesweeper game as a CS50P final project.
 - Entire gui is made using Tkinter.
 ### table of contents
