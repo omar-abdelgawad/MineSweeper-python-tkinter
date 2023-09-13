@@ -7,7 +7,7 @@ import argparse
 from cell import Cell, CellFlagState
 from typing import Optional, Sequence
 
-# TODO: Stop time when game is finished won
+# TODO: Stop time whepn game is finished won
 # TODO: change dims of the cell to change according to size of rows and cols
 # TODO: add choosing the number of rows and columns at start of game
 # TODO: maybe change the design to make it a bit more like original Mines
